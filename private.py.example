@@ -1,0 +1,10 @@
+__all__ = ['USERNAME', 'PASSWORD']
+
+"""
+Este arquivo contém informações confidenciais.
+Não deixe que ninguém veja esses dados, ou qualquer um
+poderá acessar seus dados no Portal do Aluno CEFET.
+"""
+
+USERNAME = 'SUA MATRICULA AQUI'
+PASSWORD = 'SUA SENHA AQUI'
