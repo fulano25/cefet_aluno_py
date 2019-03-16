@@ -1,5 +1,10 @@
 from unicodedata import normalize
+import json
 
+def jsonify(func):
+   def func_wrapper(*args, **kwargs):
+       return json.dumps(func(*args, **kwargs))
+   return func_wrapper
 
 def remover_acentos(txt):
     return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('utf-8') 
