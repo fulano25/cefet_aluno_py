@@ -2,8 +2,9 @@ from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from private import *
-import os  
-
+from utils import *
+import os
+from datetime import datetime
 
 PATH = {
     'matricula': '/aluno/aluno/matricula/solicitacoes.action?matricula=',
@@ -41,18 +42,12 @@ class Session(HTMLSession):
         
         if not os.path.isdir(REL_DIR):
             os.makedirs(REL_DIR)
-        
 
         matricula_element = self.home.html.find('#matricula', first=True)
         if matricula_element:
             self.matricula = matricula_element.attrs['value']
         else:
             raise Exception('matrícula não encontrada')
-
-        self.print_table()
-        # comp = list(PATH.keys())[2:11]
-        # for f in comp:
-        #     self.save_pdf(f)
 
     def login(self):
         """
@@ -65,10 +60,61 @@ class Session(HTMLSession):
             }
         return self.post(url, data=data)
 
-    def get_page(self, path):
-        url = urljoin(self.home.url, PATH[path] + self.matricula)
+    def get_url(self, path):
+        url = urljoin(self.home.url, path)
         return self.get(url)
+
+    def get_page(self, item):
+        return self.get_url(PATH[item] + self.matricula)
     
+    def get_timetable_list(self):
+        r = self.get_page('quadro_horario')
+        soup = BeautifulSoup(r.content, 'html5lib')
+        table = soup.find('table')
+
+        return list_from_table(table, th_func=handle_timetable_th,
+        td_func=handle_timetable_td)
+
+    def get_timetable_dict(self): 
+        table = self.get_timetable_list()
+        return table_to_dicts(table)
+
+    def get_class(self, identifier):
+        url = '/aluno/aluno/turma.action?turma=' + str(identifier)
+        ident = {'id': str(identifier)}
+        r = self.get_url(url)
+        soup = BeautifulSoup(r.content, 'html5lib')
+        tables = soup.find_all('table')
+        tur = soup.find('div', class_='topopage')
+        num_turma = trim(tur.text).split()[-1]
+        turma = {'turma': num_turma}
+
+        discip = tables[1]
+        discip.tr.extract()
+        disciplina = sum(list_from_table(discip), [])
+        disc_tupl = []
+        for i in disciplina:
+            if ':' in i:
+                o = i.split(':')
+            else:
+                o = i.split(' ', 1)
+            disc_tupl.append(o)
+
+        t5 = list_from_table(tables[5])
+        if len(t5[1]) > 4:
+            esp_fisico = [t5[0], t5[1][0:5], [t5[1][0], *t5[1][4::]]] 
+        else:
+            esp_fisico = t5
+
+        geral = {**ident, **turma, **tuples_to_dict(disc_tupl)}
+        vagas = tuples_to_dict(list_from_table  (tables[2])[2::])
+        docente = table_to_dicts(list_from_table(tables[3]))
+        horarios = table_to_dicts(list_from_table(tables[4]))
+        espaco_fisico = table_to_dicts(esp_fisico)
+
+        return {'geral': geral, 'vagas': vagas, 'docente': docente,
+                'horarios': horarios, 'espaco_fisico': espaco_fisico}
+
     def save_pdf(self, file_name):
         response = self.get_page(file_name)
         content_type = response.headers.get('content-type')
@@ -76,34 +122,42 @@ class Session(HTMLSession):
         if 'application/pdf' in content_type:
             with open(name, 'wb') as f:
                 f.write(response.content)
+            log_message = '{}.pdf salvo com sucesso'.format(file_name)
         else:
-            print('{}.pdf não disponível'.format(file_name))
-    
-    def print_table(self):
-        r = self.get_page('quadro_horario')
+            log_message = '{}.pdf não disponível'.format(file_name)
+        return log_message 
 
-        soup = BeautifulSoup(r.content, 'html5lib')
-        tbody = soup.find('tbody')
-
-        rows = []
-        for row in tbody.find_all('tr'):
-            r = []
-            for val in row.find_all('td'):
-                a = val.find('a')
-                span = val.find('span', class_='label')
-                if a:
-                    a_dict = a.attrs
-                    a_dict['content'] = ' '.join(a.text.split())
-                    r.append(a_dict)
-                elif span:
-                    r.append(''.join(span.text.split()))
-                else:
-                    r.append('')
-            rows.append(r)
-            
-        for r in rows:
-            print(r)
+    def save_all_docs(self):
+        log_path = os.path.join(REL_DIR, 'log.txt')
+        if os.path.isfile(log_path):
+            os.remove(log_path)
+        pdfs = list(PATH.keys())[2:11]
+        for pdf in pdfs:
+            log_message = self.save_pdf(pdf)
+            time = datetime.now().strftime('%H:%M:%S-%d/%m/%Y')
+            with open(log_path, 'a') as f:
+                f.write(time + ' ' + log_message + '\n')
 
 
 if __name__ == '__main__':
     session = Session()
+    
+    session.save_all_docs()
+
+    data = {'timetable_list': session.get_timetable_list(),
+            'timetable_dict': session.get_timetable_dict(),
+            'a_class_example': session.get_class(76101)}
+    
+    import json
+
+    JSON_DIR = './json'
+
+    if not os.path.isdir(JSON_DIR):
+        os.makedirs(JSON_DIR)
+
+    for f, d in data.items():
+        name = os.path.join(JSON_DIR, f + '.json')
+        with open(name, 'w') as outfile:  
+            json.dump(d, outfile)
+    
+    print('Done!')
