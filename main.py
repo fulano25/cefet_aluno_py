@@ -67,6 +67,7 @@ class Session(HTMLSession):
     def get_page(self, item):
         return self.get_url(PATH[item] + self.matricula)
     
+    @jsonify
     def get_timetable_list(self):
         r = self.get_page('quadro_horario')
         soup = BeautifulSoup(r.content, 'html5lib')
@@ -88,10 +89,12 @@ class Session(HTMLSession):
 
         return table_list
 
+    @jsonify
     def get_timetable_dict(self): 
         table = self.get_timetable_list()
         return table_to_dicts(table)
-    
+
+    @jsonify
     def get_timetable_entries(self):
         timetable = self.get_timetable_list()
         entries = []
@@ -102,6 +105,7 @@ class Session(HTMLSession):
 
         return entries
 
+    @jsonify
     def get_class(self, identifier):
         url = '/aluno/aluno/turma.action?turma=' + str(identifier)
         ident = {'id': str(identifier)}
@@ -170,8 +174,6 @@ if __name__ == '__main__':
     data = {'timetable_entries': session.get_timetable_entries(),
             'timetable_list': session.get_timetable_list(),
             'a_class_example': session.get_class(76101)}
-    
-    import json
 
     JSON_DIR = './json'
 
@@ -181,6 +183,7 @@ if __name__ == '__main__':
     for f, d in data.items():
         name = os.path.join(JSON_DIR, f + '.json')
         with open(name, 'w') as outfile:  
-            json.dump(d, outfile)
+            outfile.write(d)
     
-    print('Done!')
+    print('Para visualizar os json de exemplo, entre na pasta json.')
+    print('Para visualizar os relatórios de exemplo, entre na pasta rel.')
