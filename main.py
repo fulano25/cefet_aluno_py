@@ -71,13 +71,36 @@ class Session(HTMLSession):
         r = self.get_page('quadro_horario')
         soup = BeautifulSoup(r.content, 'html5lib')
         table = soup.find('table')
+        l = list_from_table(table, th_func=handle_timetable_th,
+            td_func=handle_timetable_td)
+        
+        table_list = [l[0]]
+        for r in l[1::]:
+            new_row = []
+            for c, col in enumerate(r):
+                if col and not isinstance(col, str):
+                    # monday is 0 / segunda-feira é 0
+                    new_col = {**col, **{'dia_da_semana': str(c-2)}}
+                    new_row.append(new_col)
+                else:
+                    new_row.append(col)
+            table_list.append(new_row)
 
-        return list_from_table(table, th_func=handle_timetable_th,
-        td_func=handle_timetable_td)
+        return table_list
 
     def get_timetable_dict(self): 
         table = self.get_timetable_list()
         return table_to_dicts(table)
+    
+    def get_timetable_entries(self):
+        timetable = self.get_timetable_list()
+        entries = []
+        for row in timetable[1::]:
+            for item in row[1::]:
+                if item:
+                    entries.append(item)
+
+        return entries
 
     def get_class(self, identifier):
         url = '/aluno/aluno/turma.action?turma=' + str(identifier)
@@ -141,11 +164,11 @@ class Session(HTMLSession):
 
 if __name__ == '__main__':
     session = Session()
-    
+
     session.save_all_docs()
 
-    data = {'timetable_list': session.get_timetable_list(),
-            'timetable_dict': session.get_timetable_dict(),
+    data = {'timetable_entries': session.get_timetable_entries(),
+            'timetable_list': session.get_timetable_list(),
             'a_class_example': session.get_class(76101)}
     
     import json
