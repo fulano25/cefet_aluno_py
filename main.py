@@ -32,14 +32,10 @@ SITE = 'https://alunos.cefet-rj.br/'
 REL_DIR = './rel'
 
 class Session(HTMLSession):
-    def __init__(self, url=SITE):
+    def __init__(self, username=USERNAME, password=PASSWORD):
         super().__init__()
-        self.get(url)
-        self.password = PASSWORD
-        self.username = USERNAME
-        self.matricula = None
-        self.home = self.login()
-        
+        self.get(SITE)
+        self.home = self.login(username, password)
         if not os.path.isdir(REL_DIR):
             os.makedirs(REL_DIR)
 
@@ -49,14 +45,14 @@ class Session(HTMLSession):
         else:
             raise Exception('matrícula não encontrada')
 
-    def login(self):
+    def login(self, username, password):
         """
         Sends a POST request. Returns Response object.
         """
         url = urljoin(SITE, 'aluno/j_security_check')
         data = {
-            'j_username': self.username,
-            'j_password': self.password
+            'j_username': username,
+            'j_password': password
             }
         return self.post(url, data=data)
 
