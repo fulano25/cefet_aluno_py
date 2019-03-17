@@ -42,13 +42,11 @@ DUMMYDATA = {
     'hora_fim':'15:20',
     'data_inicio_periodo': '05/12/18',
     'data_fim_periodo': '29/06/19',
-    'dia_da_semana': '4', 'aula': 'Teórica',
-    'espaco_fisico': {
-        'nome_do_campus': 'Campus Maracanã',
-        'nome_do_predio': 'Bloco Z',
-        'espaco_fisico': 'sala de aula',
-        'numero_da_sala': 'E-666'
-        },
+    'dia_da_semana': '4', 
+    'aula': 'Teórica',
+    'nome_do_campus': 'Campus Maracanã',
+    'nome_do_predio': 'Bloco Z',
+    'numero_da_sala': 'E-666',
     'nome_do_docente': 'MARIA MIÇANGA DA PAZ'
     }
 	
@@ -59,29 +57,33 @@ def create_event(data):
     end_datetime = gen_datetime(data['dia_da_semana'], data['hora_fim'])
     end_recurrence = expiration_date(data['data_fim_periodo'])
     summary = data['disciplina']
-
+    campus = ''
+    predio = ''
+    sala = ''
     try: 
         campus = data['nome_do_campus']
     except:
-        campus = ''
+        pass
     try:
         predio = data['nome_do_predio']
     except:
-        predio = ''
+        pass
     try:
         sala = data['numero_da_sala']
     except:
-        sala = ''
+        pass
     location = '{}: {} - {}'.format(campus, predio, sala)
 
+    aula = ''
+    docente = ''
     try:
         aula = data['aula'].lower()
     except:
-        aula = ''
+        pass
     try:
         docente = data['nome_do_docente']
     except:
-        docente = ''
+        pass
     description = 'Aula {} com prof. {}.'.format(aula, docente)
 
     return {
