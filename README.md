@@ -16,3 +16,12 @@ git clone https://github.com/fulano25/cefet_aluno_py.git
 pip install -r requirements.txt
 ```
 
+Renomeie o arquivo private.py.example para private.py e coloque seu `login` e `senha` nos campos indicados.
+
+Você também vai precisar de um arquivo de credenciais da api do Google. `credentials.json`
+
+Salve na pasta raiz.
+
+https://developers.google.com/calendar/quickstart/go
+
+A API do Google inicia um servidor na porta 8080. Certifique-se que não há algum serviço utilizando esta porta antes de executar o script, ou ocorrerá um erro.
