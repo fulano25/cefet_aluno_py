@@ -1,10 +1,10 @@
 from unicodedata import normalize
-import json
+# import json
 
-def jsonify(func):
-   def func_wrapper(*args, **kwargs):
-       return json.dumps(func(*args, **kwargs))
-   return func_wrapper
+# def jsonify(func):
+#    def func_wrapper(*args, **kwargs):
+#        return json.dumps(func(*args, **kwargs))
+#    return func_wrapper
 
 def remover_acentos(txt):
     return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('utf-8') 
@@ -64,8 +64,8 @@ def handle_timetable_td(td):
     if a:
         a_dict = a.attrs
         identifier = a_dict['href'].split('=')[1]
-        _nome, _turma = trim_text(a).split(' T. ')
-        nome = {'nome': _nome}
+        _disciplina, _turma = trim_text(a).split(' T. ')
+        disciplina = {'disciplina': _disciplina}
         turma = {'turma': _turma}
         status = {'status': img.attrs['title']}
         data, hora = a_dict['title'].split(' > ')
@@ -78,7 +78,7 @@ def handle_timetable_td(td):
         data_inicio_periodo = {'data_inicio_periodo': _data_inicio_periodo}
         data_fim_periodo = {'data_fim_periodo': _data_fim_periodo}
         ident = {'id': identifier}
-        d = {**ident, **nome, **turma, **status, **a_dict, **hora_inicio,
+        d = {**ident, **disciplina, **turma, **status, **a_dict, **hora_inicio,
             **hora_fim, **data_inicio_periodo, **data_fim_periodo}
         # cleaning up
         d.pop('href', None)
