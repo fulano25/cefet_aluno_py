@@ -68,7 +68,7 @@ class Session(HTMLSession):
     def get_timetable_list(self):
         r = self.get_page('quadro_horario')
         soup = BeautifulSoup(r.content, 'html5lib')
-        table = soup.find('table')
+        table = soup.find(id='quadrohorario')
         l = list_from_table(table, th_func=handle_timetable_th,
             td_func=handle_timetable_td)
         
@@ -206,8 +206,9 @@ class Session(HTMLSession):
 
 if __name__ == '__main__':
     session = Session()
-    
-    classes = session.get_detailed_classes()
+    import time
+
+    classes = session.get_timetable_list()
 
     print(classes)
 
