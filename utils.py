@@ -18,7 +18,7 @@ def trim_text(s, separator=' '):
 def format_key(val):
     if val:
         if ' ' in val:
-            val = trim(val, separator='_')
+            val = trim(val.replace('.', ''), separator='_')
         return remover_acentos(val).lower()
     else:
         return ''
@@ -114,7 +114,7 @@ def handle_labels(td):
         pass
 
     try:
-        value = titleize(td)
+        value = trim_text(td)
     except:
         value = ''
 
