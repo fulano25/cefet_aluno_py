@@ -90,5 +90,36 @@ def handle_timetable_td(td):
     else:
         return ''
 
+def render_entry(entry):
+    s = entry.lower()
+    *words, last_word = s.split()
+    roman_numerals = {'i': '1', 'ii': '2', 'iii': '3'}
+    if last_word in roman_numerals.keys():
+        last_word = roman_numerals[last_word]
+    words.append(last_word)
+    subject = ' '.join(words)
+    return  titleize(subject)
+
+def titleize(text):
+    exceptions = ['de', 'da', 'do', 'das', 'dos', 'à', 'ao', 'às', 'aos']
+    return ' '.join([word if word in exceptions else word.title()
+                     for word in text.lower().split()])    
+
+def handle_labels(td):
+    label = td.find('span', class_='label')
+    try:
+        label = format_key(trim_text(label))
+        td.span.decompose()
+    except:
+        pass
+
+    try:
+        value = titleize(td)
+    except:
+        value = ''
+
+    return label, value
+    
+
 if __name__ == '__main__':
     pass
