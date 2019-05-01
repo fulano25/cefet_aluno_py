@@ -9,7 +9,7 @@ from models import create_event
 
 PATH = {
     'matricula': '/aluno/aluno/matricula/solicitacoes.action?matricula=',
-    
+
     'relatorios': '/aluno/aluno/relatorio/relatorios.action?matricula=',
     'atestado_trancamento': '/aluno/aluno/relatorio/atestadoTrancamento.action?matricula=',
     'boletim_escolar': '/aluno/aluno/relatorio/boletimEscolar.action?matricula=',
@@ -26,6 +26,8 @@ PATH = {
     'notas': '/aluno/aluno/nota/nota.action?matricula=',
     'comunicados': '/comunicacoes/noticia/list.action?br.com.asten.si.geral.web.spring.interceptors.AplicacaoWebChangeInterceptor.aplicacaoWeb=1',
 
+    'turma': '/aluno/aluno/turma.action?turma=',
+    'perfil': '/aluno/aluno/perfil/perfil.action'
 }
 
 SITE = 'https://alunos.cefet-rj.br/'
@@ -141,7 +143,7 @@ class Session(HTMLSession):
             
 
     def get_class(self, identifier):
-        url = '/aluno/aluno/turma.action?turma=' + str(identifier)
+        url =  PATH['turma'] + str(identifier)
         ident = str(identifier)
         r = self.get_url(url)
         soup = BeautifulSoup(r.content, 'html5lib')
@@ -203,10 +205,21 @@ class Session(HTMLSession):
             with open(log_path, 'a') as f:
                 f.write(time + ' ' + log_message + '\n')
 
+    def get_profile(self):
+        r = self.get_url(PATH['perfil'])
+        soup = BeautifulSoup(r.content, 'html5lib')
+        tables = soup.find_all('table')
+
+        info = tables[1]
+        # docs = tables[2]
+        # address = tables[3]
+
+        l = list_from_table(info, td_func=handle_labels)
+        print(l)
+
 
 if __name__ == '__main__':
     session = Session()
-    import time
 
     classes = session.get_timetable_list()
 
