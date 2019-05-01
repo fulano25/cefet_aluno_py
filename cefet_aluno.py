@@ -139,7 +139,8 @@ class Session(HTMLSession):
         for i in tuples_set:
             clean_entries.append(dict(i))
 
-        return clean_entries
+        sorted_entries = sorted(clean_entries, key=lambda k: k['disciplina']) 
+        return sorted_entries
             
 
     def get_class(self, identifier):
@@ -172,6 +173,8 @@ class Session(HTMLSession):
         geral = {**turma, **tuples_to_dict(disc_tupl)}
         vagas = tuples_to_dict(list_from_table  (tables[2])[2::])
         docente = table_to_dicts(list_from_table(tables[3]))
+        for doc in docente:
+            doc['nome_do_docente'] = titleize(doc['nome_do_docente'])
         horarios = table_to_dicts(list_from_table(tables[4]))
         for h in horarios:
             dia_da_semana = h['dia_da_semana']
