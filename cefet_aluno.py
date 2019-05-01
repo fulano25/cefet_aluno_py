@@ -215,19 +215,25 @@ class Session(HTMLSession):
         tables = soup.find_all('table')
 
         info = tables[1]
-        # docs = tables[2]
-        # address = tables[3]
+        docs = tables[2]
+        address = tables[3]
 
-        l = list_from_table(info, td_func=handle_labels)
-        print(l)
+        info_list = sum(list_from_table(info, td_func=handle_labels)[2::], [])
+        info_dict = tuples_to_dict(info_list)
+        docs_table = list_from_table(docs)
+        docs_dicts = table_to_dicts(docs_table)
+        address_list = sum(list_from_table(address, td_func=handle_labels)[1:-1], [])
+        address_dict = tuples_to_dict(address_list)
+
+        return {'info': info_dict, 'docs': docs_dicts, 'addrs': address_dict}
 
 
 if __name__ == '__main__':
     session = Session()
 
-    classes = session.get_timetable_list()
+    response = session.get_timetable_list()
 
-    print(classes)
+    print(response)
 
     # session.save_all_docs()
     # data = {
