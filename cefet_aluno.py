@@ -2,7 +2,8 @@ from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from private import *
-from utils import *
+from utils import list_from_table, handle_timetable_td, handle_timetable_th, \
+    table_to_dicts, trim, tuples_to_dict, table_to_dicts, titleize, handle_labels
 import os
 from datetime import datetime
 from models import create_event
