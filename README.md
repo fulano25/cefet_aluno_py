@@ -9,7 +9,7 @@ Por enquanto está em fase de prova de conceito, mas você já pode utilizar o m
 É necessário clonar este repositório, e instalar as dependências necessárias na sua instalação do python.
 
 ```bash
-git clone https://github.com/fulano25/cefet_aluno_py.git
+git clone https://github.com/saulodias/cefet_aluno_py.git
 ```
 
 ```bash
